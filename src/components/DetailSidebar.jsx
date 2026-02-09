@@ -14,7 +14,6 @@ const DetailSidebar = ({ expediente, onClose, onUpdate }) => {
   const [editData, setEditData] = useState(null);
   const [isGenerating, setIsGenerating] = useState(false);
 
-  // Sincronización de datos con el estado local para edición segura
   useEffect(() => {
     if (expediente) {
       setEditData({ ...expediente });
@@ -30,7 +29,6 @@ const DetailSidebar = ({ expediente, onClose, onUpdate }) => {
   };
 
   const handleOpenFolder = async () => {
-    // Usamos una ruta absoluta segura para evitar reinicios del entorno dev
     const folderPath = `C:/AXIOM_CUSTODIA/EXP_${expediente.n_expediente_cd}`;
     try {
       await invoke('create_expediente_folder', { path: folderPath });
@@ -43,7 +41,6 @@ const DetailSidebar = ({ expediente, onClose, onUpdate }) => {
   const handlePDFTrigger = async () => {
     setIsGenerating(true);
     try {
-      // El servicio ahora maneja el diálogo de guardado nativo
       await generateOfficialPDF([editData]);
     } finally {
       setIsGenerating(false);
@@ -252,10 +249,8 @@ const DetailSidebar = ({ expediente, onClose, onUpdate }) => {
   );
 };
 
-// --- COMPONENTES AUXILIARES ---
-
 const Section = ({ title, icon, color, children }) => (
-  <section className="space-y-3 animate-in fade-in slide-in-from-bottom-2 duration-500">
+  <section className="space-y-3">
     <h3 className={`text-[10px] font-black uppercase tracking-[0.2em] flex items-center gap-2 ${color || 'text-gray-400'}`}>
       {icon} {title}
     </h3>
@@ -264,30 +259,21 @@ const Section = ({ title, icon, color, children }) => (
 );
 
 const DetailField = ({ label, value, highlight, isEdit, onChange, isSelect, options, placeholder, icon }) => (
-  <div className="p-3 bg-white border border-gray-100 rounded-2xl flex justify-between items-center transition-all hover:border-blue-200">
+  <div className="p-3 bg-white border border-gray-100 rounded-2xl flex justify-between items-center transition-all hover:border-blue-200 group">
     <div className="flex flex-col flex-1">
       <p className="text-[9px] font-black text-gray-400 uppercase tracking-tighter mb-0.5">{label}</p>
       {isEdit ? (
         isSelect ? (
-          <select 
-            className="text-xs font-bold bg-blue-50 border-none outline-none rounded-lg p-1 text-blue-600 shadow-sm" 
-            value={value} 
-            onChange={(e) => onChange(e.target.value)}
-          >
+          <select className="text-xs font-bold bg-blue-50 border-none outline-none rounded-lg p-1 text-blue-600" value={value} onChange={(e) => onChange(e.target.value)}>
             {options.map(o => <option key={o} value={o}>{ESTADOS[o]?.label || o}</option>)}
           </select>
         ) : (
-          <input 
-            className="text-xs font-bold bg-blue-50 border-none outline-none rounded-lg p-1 text-blue-600 shadow-sm w-full placeholder:text-blue-200" 
-            placeholder={placeholder} 
-            value={value || ""} 
-            onChange={(e) => onChange(e.target.value)} 
-          />
+          <input className="text-xs font-bold bg-blue-50 border-none outline-none rounded-lg p-1 text-blue-600 w-full" placeholder={placeholder} value={value || ""} onChange={(e) => onChange(e.target.value)} />
         )
       ) : (
         <div className="flex items-center gap-2">
           {icon && <span className="text-blue-500">{icon}</span>}
-          <p className={`text-xs font-bold ${highlight ? 'text-blue-600 tabular-nums' : 'text-gray-800'}`}>
+          <p className={`text-xs font-bold ${highlight ? 'text-blue-600' : 'text-gray-800'}`}>
             {value || "---"}
           </p>
         </div>
@@ -304,7 +290,7 @@ const SoporteToggle = ({ label, active, isEdit, onToggle }) => (
       active 
       ? 'bg-blue-600 text-white border-blue-700 shadow-md' 
       : 'bg-gray-100 text-gray-400 border-gray-200 opacity-40'
-    } ${isEdit && 'hover:scale-105 active:scale-95'}`}
+    }`}
   >
     {label}
   </button>
