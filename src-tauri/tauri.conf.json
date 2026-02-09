@@ -1,7 +1,7 @@
 {
   "productName": "AXIOM-VAULT",
   "version": "1.0.0",
-  "identifier": "com.axiom.vault",
+  "identifier": "com.axiom.vault.app",
   "build": {
     "beforeDevCommand": "npm run dev",
     "beforeBuildCommand": "npm run build",

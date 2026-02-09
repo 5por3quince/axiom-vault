@@ -1,9 +1,9 @@
-name: "Release AXIOM VAULT"
+name: "AXIOM-RELEASE"
 
 on:
   push:
     tags:
-      - 'v*' # Se activa cuando creas una versión tipo v1.0.0
+      - 'v*'
 
 jobs:
   publish:
@@ -13,8 +13,8 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - platform: "windows-latest" # Genera el .exe
-          - platform: "macos-latest"  # Genera el .dmg (para el M4)
+          - platform: "windows-latest"
+          - platform: "macos-latest"
 
     runs-on: ${{ matrix.platform }}
     steps:
@@ -23,28 +23,23 @@ jobs:
       - name: setup node
         uses: actions/setup-node@v4
         with:
-          node-version: lts/*
+          node-version: 20 # Versión específica para estabilidad
 
       - name: install Rust stable
         uses: dtolnay/rust-toolchain@stable
-
-      - name: install dependencies (ubuntu only)
-        if: matrix.platform == 'ubuntu-22.04'
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y libgtk-3-dev libwebkit2gtk-4.0-dev libappindicator3-dev librsvg2-dev patchelf
+        with:
+          targets: ${{ matrix.platform == 'macos-latest' && 'aarch64-apple-darwin,x86_64-apple-darwin' || '' }}
 
       - name: install frontend dependencies
         run: npm install
 
       - name: build tauri app
-        uses: tauri-apps/tauri-action@v0
+        uses: tauri-apps/tauri-action@v2 # <--- CAMBIO CRÍTICO A V2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tagName: v__VERSION__ # Toma la versión de package.json
+          tagName: v__VERSION__
           releaseName: "AXIOM VAULT v__VERSION__"
-          releaseBody: "Versión oficial de fiscalización PAU. Chip M4 & PC Portable Support."
+          releaseBody: "Versión oficial de fiscalización PAU. Optimizada para chip M4 y Windows."
           releaseDraft: true
           prerelease: false
-          args: --verbose
