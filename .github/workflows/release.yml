@@ -12,7 +12,11 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        platform: [windows-latest, macos-latest]
+        include:
+          - platform: "windows-latest"
+            args: ""
+          - platform: "macos-latest"
+            args: "--target aarch64-apple-darwin"
 
     runs-on: ${{ matrix.platform }}
     steps:
@@ -22,25 +26,21 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
+          cache: 'npm'
 
       - name: install Rust stable
         uses: dtolnay/rust-toolchain@stable
-        with:
-          targets: ${{ matrix.platform == 'macos-latest' && 'aarch64-apple-darwin,x86_64-apple-darwin' || '' }}
 
       - name: install frontend dependencies
         run: npm install
 
-      - name: install tauri cli
-        run: npm install -g @tauri-apps/cli@next
-
       - name: build tauri app
-        uses: tauri-apps/tauri-action@v0 # <--- VOLVEMOS A V0 (LA CORRECTA)
+        uses: tauri-apps/tauri-action@v0.0.0 # Usamos la versión específica fija
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tagName: v__VERSION__
           releaseName: "AXIOM VAULT v__VERSION__"
-          releaseBody: "Versión oficial AXIOM VAULT. Soporte nativo PC Portable y Chip M4."
+          releaseBody: "Versión de Custodia PAU Estable. Soporte nativo Windows y M4."
           releaseDraft: true
           prerelease: false
