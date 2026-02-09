@@ -1,6 +1,6 @@
 {
   "productName": "AXIOM-VAULT",
-  "version": "1.0.0",
+  "version": "1.1.2",
   "identifier": "com.axiom.vault.app",
   "build": {
     "beforeDevCommand": "npm run dev",
@@ -15,20 +15,16 @@
         "width": 1280,
         "height": 850,
         "resizable": true,
-        "fullscreen": false,
-        "decorations": true,
-        "transparent": false,
-        "theme": "Dark"
+        "fullscreen": false
       }
     ],
     "security": {
-  "csp": "default-src 'self'; img-src 'self' https://*.mapbox.com data: blob:; script-src 'self' 'unsafe-eval' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://*.mapbox.com; connect-src 'self' https://*.mapbox.com https://api.mapbox.com https://events.mapbox.com;"
-}
+      "csp": "default-src 'self'; img-src 'self' https://*.mapbox.com data: blob:; script-src 'self' 'unsafe-eval' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://*.mapbox.com; connect-src 'self' https://*.mapbox.com https://api.mapbox.com https://events.mapbox.com;"
+    }
   },
   "bundle": {
     "active": true,
     "targets": ["nsis", "dmg"],
-    "identifier": "com.axiom.vault.app",
     "icon": [
       "icons/32x32.png",
       "icons/128x128.png",
@@ -41,10 +37,7 @@
         "oneClick": false,
         "perMachine": false,
         "allowElevation": true,
-        "allowToChangeInstallationDirectory": true,
-        "installerIcon": "icons/icon.ico",
-        "installIcon": "icons/icon.ico",
-        "languages": ["Spanish"]
+        "allowToChangeInstallationDirectory": true
       }
     }
   },
@@ -54,8 +47,7 @@
       "open": true
     },
     "fs": {
-      "active": true,
-      "scope": ["**"]
+      "active": true
     },
     "dialog": {
       "active": true
