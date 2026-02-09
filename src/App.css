@@ -1,0 +1,40 @@
+/* src/App.css */
+
+/* El viewport principal ocupa toda la pantalla */
+.app-viewport {
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  overflow: hidden;
+}
+
+/* FIX PARA EL MAPA: Aseguramos que el canvas de Mapbox sea visible */
+.map-master-container {
+  width: 100% !important;
+  height: 100% !important;
+  position: absolute !important;
+  top: 0;
+  left: 0;
+}
+
+/* Forzado de visibilidad del motor WebGL */
+.mapboxgl-canvas {
+  width: 100% !important;
+  height: 100% !important;
+  display: block;
+}
+
+/* Asegurar que el sidebar no tape el mapa cuando está cerrado */
+aside {
+  z-index: 50;
+}
+
+/* Animación de entrada estilo Xcode */
+.animate-sidebar {
+  animation: slideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes slideIn {
+  from { transform: translateX(100%); }
+  to { transform: translateX(0); }
+}

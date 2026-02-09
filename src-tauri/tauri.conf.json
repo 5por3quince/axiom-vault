@@ -1,0 +1,67 @@
+{
+  "productName": "AXIOM-VAULT",
+  "version": "1.0.0",
+  "identifier": "com.axiom.vault",
+  "build": {
+    "beforeDevCommand": "npm run dev",
+    "beforeBuildCommand": "npm run build",
+    "devUrl": "http://localhost:1420",
+    "frontendDist": "../dist"
+  },
+  "app": {
+    "windows": [
+      {
+        "title": "AXIOM VAULT • CUSTODIA DE AUTOPROTECCIÓN",
+        "width": 1280,
+        "height": 850,
+        "resizable": true,
+        "fullscreen": false,
+        "decorations": true,
+        "transparent": false,
+        "theme": "Dark"
+      }
+    ],
+    "security": {
+  "csp": "default-src 'self'; img-src 'self' https://*.mapbox.com data: blob:; script-src 'self' 'unsafe-eval' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://*.mapbox.com; connect-src 'self' https://*.mapbox.com https://api.mapbox.com https://events.mapbox.com;"
+}
+  },
+  "bundle": {
+    "active": true,
+    "targets": ["nsis", "dmg"],
+    "identifier": "com.axiom.vault.app",
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.icns",
+      "icons/icon.ico"
+    ],
+    "windows": {
+      "nsis": {
+        "oneClick": false,
+        "perMachine": false,
+        "allowElevation": true,
+        "allowToChangeInstallationDirectory": true,
+        "installerIcon": "icons/icon.ico",
+        "installIcon": "icons/icon.ico",
+        "languages": ["Spanish"]
+      }
+    }
+  },
+  "plugins": {
+    "shell": {
+      "active": true,
+      "open": true
+    },
+    "fs": {
+      "active": true,
+      "scope": ["**"]
+    },
+    "dialog": {
+      "active": true
+    },
+    "opener": {
+      "active": true
+    }
+  }
+}

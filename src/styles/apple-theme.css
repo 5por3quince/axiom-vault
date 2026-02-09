@@ -1,0 +1,70 @@
+@import "tailwindcss";
+
+/* AXIOM VAULT - Estética Oficial Apple & Protección Civil */
+
+@theme {
+  --color-apple-blue: #007AFF;
+  --color-apple-green: #34C759;
+  --color-apple-red: #FF3B30;
+  --color-apple-orange: #FF9500;
+  --color-apple-gray: #8E8E93;
+}
+
+:root {
+  --apple-bg: #F5F5F7;
+  --apple-card: rgba(255, 255, 255, 0.7);
+}
+
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif;
+  -webkit-font-smoothing: antialiased;
+  background-color: var(--apple-bg);
+  overflow: hidden;
+}
+
+/* CAPA DE CRISTAL (Glassmorphism) */
+.glass {
+  background: var(--apple-card);
+  backdrop-filter: blur(25px) saturate(180%);
+  -webkit-backdrop-filter: blur(25px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.dark .glass {
+  background: rgba(28, 28, 30, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* ANIMACIÓN DE VIGILANCIA ACTIVA - ANEXO IV */
+.shield-active {
+  background: linear-gradient(135deg, #34C759 0%, #248A3D 100%);
+  color: white !important;
+  border-radius: 50%;
+  animation: surveillance-pulse 3s infinite ease-in-out;
+  box-shadow: 0 0 15px rgba(52, 199, 89, 0.4);
+}
+
+@keyframes surveillance-pulse {
+  0% { transform: scale(1); box-shadow: 0 0 5px rgba(52, 199, 89, 0.4); }
+  50% { transform: scale(1.1); box-shadow: 0 0 25px rgba(52, 199, 89, 0.7); }
+  100% { transform: scale(1); box-shadow: 0 0 5px rgba(52, 199, 89, 0.4); }
+}
+
+/* EFECTO SHAKE (ERROR LOGIN) */
+.shake {
+  animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
+}
+
+@keyframes shake {
+  10%, 90% { transform: translate3d(-1px, 0, 0); }
+  20%, 80% { transform: translate3d(2px, 0, 0); }
+  30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
+  40%, 60% { transform: translate3d(4px, 0, 0); }
+}
+
+/* SCROLLBAR ESTILO MACOS */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(0, 0, 0, 0.1); border-radius: 10px; }
+.dark ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.1); }

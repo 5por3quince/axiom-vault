@@ -1,0 +1,37 @@
+{
+  "project": "AXIOM VAULT - REGISTRO PAU",
+  "version": "1.0.0",
+  "schema": {
+    "expediente": {
+      "id": "string (ej: 19.1)",
+      "tipo": "enum [Forestal, Municipal, Público]",
+      "topRiesgo": "boolean",
+      "obligatoriedad": {
+        "rd_393_2007": "boolean",
+        "om_bomberos": "boolean",
+        "reg_especifico": "boolean"
+      },
+      "identificacion": {
+        "establecimiento": "string",
+        "titular": "string",
+        "uso": "string",
+        "refCatastral": "string",
+        "numeroFinca": "string"
+      },
+      "fechas_control": {
+        "ultimo_movimiento": "ISO8601",
+        "entrada_pa": "ISO8601",
+        "plan_autoproteccion": "ISO8601",
+        "caducidad_3_4_años": "ISO8601",
+        "proximo_simulacro": "ISO8601"
+      },
+      "custodia_digital": {
+        "ruta_admin_local": "string (absolute path)",
+        "ruta_tecnica_local": "string (absolute path)",
+        "cloud_sync_enabled": "boolean"
+      },
+      "estado_administrativo": "enum [Rev, N/P, F, B1, B2, A, N/T]",
+      "tecnico_responsable": "string"
+    }
+  }
+}

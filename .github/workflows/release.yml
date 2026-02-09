@@ -1,0 +1,50 @@
+name: "Release AXIOM VAULT"
+
+on:
+  push:
+    tags:
+      - 'v*' # Se activa cuando creas una versión tipo v1.0.0
+
+jobs:
+  publish:
+    permissions:
+      contents: write
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - platform: "windows-latest" # Genera el .exe
+          - platform: "macos-latest"  # Genera el .dmg (para el M4)
+
+    runs-on: ${{ matrix.platform }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: setup node
+        uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+
+      - name: install Rust stable
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: install dependencies (ubuntu only)
+        if: matrix.platform == 'ubuntu-22.04'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libgtk-3-dev libwebkit2gtk-4.0-dev libappindicator3-dev librsvg2-dev patchelf
+
+      - name: install frontend dependencies
+        run: npm install
+
+      - name: build tauri app
+        uses: tauri-apps/tauri-action@v0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tagName: v__VERSION__ # Toma la versión de package.json
+          releaseName: "AXIOM VAULT v__VERSION__"
+          releaseBody: "Versión oficial de fiscalización PAU. Chip M4 & PC Portable Support."
+          releaseDraft: true
+          prerelease: false
+          args: --verbose
