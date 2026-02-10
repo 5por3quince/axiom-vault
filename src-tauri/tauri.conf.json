@@ -1,6 +1,6 @@
 {
   "productName": "AXIOM-VAULT",
-  "version": "1.2.3",
+  "version": "1.2.4",
   "identifier": "com.axiom.vault.app",
   "build": {
     "beforeDevCommand": "npm run dev",
@@ -32,15 +32,18 @@
       "icons/icon.icns",
       "icons/icon.ico"
     ],
-    "nsis": {
-      "oneClick": false,
-      "allowToChangeInstallationDirectory": true
+    "windows": {
+      "nsis": {
+        "oneClick": false,
+        "allowToChangeInstallationDirectory": true
+      }
     },
-    "dmg": {
-      "background": null,
-      "windowPosition": {
-        "x": 400,
-        "y": 400
+    "macos": {
+      "dmg": {
+        "windowPosition": {
+          "x": 400,
+          "y": 400
+        }
       }
     }
   },
