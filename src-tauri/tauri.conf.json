@@ -1,6 +1,6 @@
 {
   "productName": "AXIOM-VAULT",
-  "version": "1.2.2",
+  "version": "1.2.3",
   "identifier": "com.axiom.vault.app",
   "build": {
     "beforeDevCommand": "npm run dev",
@@ -20,24 +20,27 @@
     ],
     "security": {
       "csp": "default-src 'self'; img-src 'self' https://*.mapbox.com data: blob:; script-src 'self' 'unsafe-eval' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://*.mapbox.com; connect-src 'self' https://*.mapbox.com https://api.mapbox.com https://events.mapbox.com;"
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": "all",
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.icns",
+      "icons/icon.ico"
+    ],
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true
     },
-    "bundle": {
-      "active": true,
-      "targets": "all",
-      "icon": [
-        "icons/32x32.png",
-        "icons/128x128.png",
-        "icons/128x128@2x.png",
-        "icons/icon.icns",
-        "icons/icon.ico"
-      ],
-      "windows": {
-        "nsis": {
-          "oneClick": false
-        }
-      },
-      "macos": {
-        "dmg": {}
+    "dmg": {
+      "background": null,
+      "windowPosition": {
+        "x": 400,
+        "y": 400
       }
     }
   },
