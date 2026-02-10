@@ -1,102 +1,169 @@
 // src/App.jsx
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import Login from './components/Login';
 import DashboardView from './components/DashboardView';
 import TableView from './components/TableView';
 import VisorTactico from './components/VisorTactico';
 import DetailSidebar from './components/DetailSidebar';
-import NewExpForm from './components/NewExpForm';
-import { getFullInventory } from './data/mockData';
-import { Plus, LogOut } from 'lucide-react';
 
-function App() {
-  const [user, setUser] = useState(null);
-  const [activeTab, setActiveTab] = useState('dashboard');
-  const [inventory, setInventory] = useState([]);
-  const [selectedExp, setSelectedExp] = useState(null);
+// Importación de datos (Basado en tu árbol de directorios de VSCode)
+import initialData from './data/pau_data.json'; 
+
+const App = () => {
+  // --- ESTADOS DE NÚCLEO ---
+  const [user, setUser] = useState(null); // Gestión de sesión (MOCK_USERS)
+  const [data, setData] = useState([]); // Los 2,152 expedientes
+  const [activeTab, setActiveTab] = useState('dashboard'); // dashboard | table | map
+  const [selectedExp, setSelectedExp] = useState(null); // Expediente activo en visor/detalle
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [isFormOpen, setIsFormOpen] = useState(false);
 
+  // --- CARGA DE DATOS E INTEGRIDAD (M4 OPTIMIZED) ---
   useEffect(() => {
-    if (user) {
-      setInventory(getFullInventory());
+    // Simulamos la carga masiva de los 2,152 expedientes
+    if (initialData) {
+      setData(initialData);
     }
-  }, [user]);
+  }, []);
 
-  if (!user) return <Login onLogin={setUser} />;
-
-  // FUNCIÓN CRÍTICA: Actualizar un expediente existente
-  const handleUpdateExpediente = (updatedExp) => {
-    setInventory(prev => prev.map(exp => 
-      exp.n_expediente_cd === updatedExp.n_expediente_cd ? updatedExp : exp
-    ));
-    setSelectedExp(updatedExp); // Actualiza la vista detalle
+  // --- LÓGICA DE NAVEGACIÓN ---
+  const handleSelectExpediente = (exp) => {
+    setSelectedExp(exp);
+    setIsSidebarOpen(true);
   };
 
-  // FUNCIÓN CRÍTICA: Importar datos masivos desde XLS
-  const handleImportData = (newData) => {
-    setInventory(newData);
-    setActiveTab('table');
+  const handleOpenInMap = (exp) => {
+    setSelectedExp(exp);
+    setActiveTab('map');
+    setIsSidebarOpen(false);
   };
 
-  const handleSaveNew = (newExp) => {
-    setInventory([newExp, ...inventory]);
-    setIsFormOpen(false);
-  };
+  // --- RENDERIZADO CONDICIONAL (AUTENTICACIÓN) ---
+  if (!user) {
+    return <Login onLogin={(userData) => setUser(userData)} />;
+  }
 
   return (
-    <div className="flex h-screen bg-[#F5F5F7] dark:bg-black text-[#1D1D1F] dark:text-white font-sans overflow-hidden">
+    <div className="h-screen w-screen bg-[#F5F5F7] dark:bg-black text-black dark:text-white flex overflow-hidden font-sans">
       
-      <nav className="w-20 flex flex-col items-center py-8 bg-white/80 dark:bg-[#1c1c1e]/80 backdrop-blur-2xl border-r border-gray-200 dark:border-white/10 z-50">
-        <div className="w-12 h-12 bg-blue-600 rounded-2xl flex items-center justify-center mb-10 shadow-xl shadow-blue-500/20">
-          <span className="text-white font-black text-xs uppercase">Ax</span>
+      {/* BARRA LATERAL DE NAVEGACIÓN (Estilo Apple) */}
+      <nav className="w-20 lg:w-24 bg-white/80 dark:bg-[#1C1C1E]/80 backdrop-blur-xl border-r border-gray-200 dark:border-white/5 flex flex-col items-center py-10 gap-8 z-30">
+        <div className="w-12 h-12 bg-blue-600 rounded-2xl flex items-center justify-center shadow-lg shadow-blue-500/20 mb-4">
+          <span className="text-white font-black text-xl italic">A</span>
         </div>
         
-        <div className="flex flex-col gap-8 flex-1">
-          <NavBtn active={activeTab === 'dashboard'} onClick={() => setActiveTab('dashboard')} icon="📊" />
-          <NavBtn active={activeTab === 'table'} onClick={() => setActiveTab('table')} icon="📂" />
-          <NavBtn active={activeTab === 'map'} onClick={() => setActiveTab('map')} icon="📍" />
-          
-          {user.role === 'ADMIN' && (
-            <button onClick={() => setIsFormOpen(true)} className="w-12 h-12 bg-green-500 text-white rounded-2xl flex items-center justify-center shadow-lg shadow-green-500/20 hover:scale-110 transition-all">
-              <Plus />
-            </button>
-          )}
-        </div>
+        <NavIcon 
+          active={activeTab === 'dashboard'} 
+          onClick={() => setActiveTab('dashboard')} 
+          icon="􀉪" // Símbolo SF para Dashboard
+          label="Mando"
+        />
+        <NavIcon 
+          active={activeTab === 'table'} 
+          onClick={() => setActiveTab('table')} 
+          icon="􀇀" // Símbolo SF para Table
+          label="Matriz"
+        />
+        <NavIcon 
+          active={activeTab === 'map'} 
+          onClick={() => setActiveTab('map')} 
+          icon="􀙊" // Símbolo SF para Map
+          label="Táctico"
+        />
 
-        <button onClick={() => setUser(null)} className="w-12 h-12 flex items-center justify-center text-gray-400 hover:text-red-500 transition-colors">
-          <LogOut size={20} />
-        </button>
+        <div className="mt-auto flex flex-col items-center gap-6">
+          <div className="w-10 h-10 rounded-full bg-gray-200 dark:bg-white/10 flex items-center justify-center border border-white/10 overflow-hidden">
+             <span className="text-[10px] font-black">{user.username?.substring(0,2).toUpperCase()}</span>
+          </div>
+          <button 
+            onClick={() => setUser(null)}
+            className="text-gray-400 hover:text-red-500 transition-colors text-[10px] font-black uppercase tracking-tighter"
+          >
+            Salir
+          </button>
+        </div>
       </nav>
 
+      {/* ÁREA DE CONTENIDO PRINCIPAL */}
       <main className="flex-1 relative overflow-hidden">
-        {activeTab === 'dashboard' && <DashboardView data={inventory} onSwitchTab={setActiveTab} />}
-        {activeTab === 'table' && (
-          <TableView 
-            data={inventory} 
-            onSelectExp={(e) => { setSelectedExp(e); setIsSidebarOpen(true); }} 
-            onImportData={handleImportData}
-          />
-        )}
-        {activeTab === 'map' && <VisorTactico selectedExp={selectedExp} />}
+        <AnimatePresence mode="wait">
+          {activeTab === 'dashboard' && (
+            <motion.div 
+              key="dashboard"
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -20 }}
+              className="h-full w-full"
+            >
+              <DashboardView data={data} onSwitchTab={setActiveTab} />
+            </motion.div>
+          )}
+
+          {activeTab === 'table' && (
+            <motion.div 
+              key="table"
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -20 }}
+              className="h-full w-full"
+            >
+              <TableView 
+                data={data} 
+                onSelect={handleSelectExpediente} 
+                onViewMap={handleOpenInMap}
+              />
+            </motion.div>
+          )}
+
+          {activeTab === 'map' && (
+            <motion.div 
+              key="map"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="h-full w-full"
+            >
+              <VisorTactico selectedExp={selectedExp} />
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* SIDEBAR DE DETALLES (Bento Style) */}
+        <DetailSidebar 
+          isOpen={isSidebarOpen} 
+          onClose={() => setIsSidebarOpen(false)}
+          expediente={selectedExp}
+          onViewMap={() => setActiveTab('map')}
+        />
       </main>
 
-      {isSidebarOpen && (
-        <DetailSidebar 
-          expediente={selectedExp} 
-          onUpdate={handleUpdateExpediente} 
-          onClose={() => setIsSidebarOpen(false)} 
-        />
-      )}
-
-      <NewExpForm isOpen={isFormOpen} onClose={() => setIsFormOpen(false)} onSave={handleSaveNew} />
+      {/* INDICADOR DE HARDWARE M4 */}
+      <div className="fixed bottom-6 right-8 pointer-events-none z-50">
+        <div className="glass px-4 py-2 rounded-full border border-white/10 shadow-2xl flex items-center gap-3">
+          <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+          <span className="text-[9px] font-black text-gray-400 dark:text-white/40 uppercase tracking-[0.2em]">
+            Axiom Core • M4 Verified
+          </span>
+        </div>
+      </div>
     </div>
   );
-}
+};
 
-const NavBtn = ({ active, onClick, icon }) => (
-  <button onClick={onClick} className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-all ${active ? 'bg-blue-600 text-white shadow-lg scale-110' : 'text-gray-400 hover:bg-gray-100 dark:hover:bg-white/5'}`}>
-    <span className="text-xl">{icon}</span>
+// Sub-componente de navegación estilo Apple
+const NavIcon = ({ active, onClick, icon, label }) => (
+  <button 
+    onClick={onClick}
+    className={`flex flex-col items-center gap-1 group transition-all ${active ? 'scale-110' : 'opacity-40 hover:opacity-100'}`}
+  >
+    <div className={`w-12 h-12 rounded-2xl flex items-center justify-center text-2xl transition-all ${
+      active ? 'bg-blue-600/10 text-blue-600 shadow-inner' : 'text-gray-500'
+    }`}>
+      {icon}
+    </div>
+    <span className={`text-[9px] font-black uppercase tracking-tighter ${active ? 'text-blue-600' : 'text-gray-400'}`}>
+      {label}
+    </span>
   </button>
 );
 
