@@ -1,6 +1,6 @@
 {
   "productName": "AXIOM-VAULT",
-  "version": "1.1.8",
+  "version": "1.1.9",
   "identifier": "com.axiom.vault.app",
   "build": {
     "beforeDevCommand": "npm run dev",
@@ -31,14 +31,8 @@
       "icons/icon.icns",
       "icons/icon.ico"
     ],
-    "windows": {
-      "nsis": {
-        "oneClick": false,
-        "installMode": "both"
-      }
-    },
-    "macos": {
-      "minimumSystemVersion": "10.13"
+    "nsis": {
+      "oneClick": false
     }
   }
 }
