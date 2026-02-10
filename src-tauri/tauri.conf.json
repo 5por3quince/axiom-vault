@@ -14,7 +14,8 @@
         "title": "AXIOM VAULT • CUSTODIA PAU",
         "width": 1280,
         "height": 850,
-        "resizable": true
+        "resizable": true,
+        "theme": "Light"
       }
     ],
     "security": {
@@ -31,17 +32,19 @@
       "icons/icon.icns",
       "icons/icon.ico"
     ],
+    "macos": {
+      "entitlements": null,
+      "exceptionDomain": "",
+      "frameworks": [],
+      "providerBundleIdentifier": null,
+      "signingIdentity": null
+    },
     "windows": {
       "nsis": {
         "allowElevation": true,
-        "allowToChangeInstallationDirectory": true
+        "allowToChangeInstallationDirectory": true,
+        "oneClick": false
       }
     }
-  },
-  "plugins": {
-    "shell": { "active": true, "open": true },
-    "fs": { "active": true },
-    "dialog": { "active": true },
-    "opener": { "active": true }
   }
 }
