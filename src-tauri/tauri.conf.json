@@ -1,6 +1,6 @@
 {
   "productName": "AXIOM-VAULT",
-  "version": "1.2.7",
+  "version": "1.2.8",
   "identifier": "com.axiom.vault.app",
   "build": {
     "beforeDevCommand": "npm run dev",
@@ -24,7 +24,7 @@
   },
   "bundle": {
     "active": true,
-    "targets": "all",
+    "targets": ["nsis", "dmg"],
     "icon": [
       "icons/32x32.png",
       "icons/128x128.png",
@@ -32,14 +32,8 @@
       "icons/icon.icns",
       "icons/icon.ico"
     ],
-    "windows": {
-      "nsis": {
-        "oneClick": false
-      }
-    },
-    "macos": {
-      "dmg": {}
-    }
+    "nsis": {},
+    "dmg": {}
   },
   "plugins": {
     "shell": { "open": true },
