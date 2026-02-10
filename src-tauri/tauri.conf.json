@@ -1,6 +1,6 @@
 {
   "productName": "AXIOM-VAULT",
-  "version": "1.1.9",
+  "version": "1.2.1",
   "identifier": "com.axiom.vault.app",
   "build": {
     "beforeDevCommand": "npm run dev",
@@ -11,6 +11,7 @@
   "app": {
     "windows": [
       {
+        "label": "main",
         "title": "AXIOM VAULT • CUSTODIA PAU",
         "width": 1280,
         "height": 850,
@@ -23,7 +24,7 @@
   },
   "bundle": {
     "active": true,
-    "targets": "all",
+    "targets": ["nsis", "dmg"],
     "icon": [
       "icons/32x32.png",
       "icons/128x128.png",

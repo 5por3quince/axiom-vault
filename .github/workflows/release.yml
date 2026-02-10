@@ -15,34 +15,43 @@ jobs:
         include:
           - platform: "windows-latest"
             args: ""
-          - platform: "macos-14" # macOS 14 runners son Apple Silicon (M1/M2/M3/M4)
+          - platform: "macos-14" # Runners Apple Silicon para M1/M2/M3/M4
             args: "--target aarch64-apple-darwin"
 
     runs-on: ${{ matrix.platform }}
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout Repository
+        uses: actions/checkout@v4
 
-      - name: setup node
+      - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: 'npm'
 
-      - name: install Rust stable
+      - name: Install Rust Stable
         uses: dtolnay/rust-toolchain@stable
         with:
+          # Asegura que instalamos el target específico para el chip M4
           targets: ${{ matrix.platform == 'macos-14' && 'aarch64-apple-darwin' || '' }}
 
-      - name: install frontend dependencies
+      - name: Rust Cache
+        uses: swatinem/rust-cache@v2
+        with:
+          workspaces: './src-tauri -> target'
+
+      - name: Install Frontend Dependencies
         run: npm install
 
-      - name: build tauri app
+      - name: Build Tauri App
         uses: tauri-apps/tauri-action@v0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tagName: ${{ github.ref_name }}
           releaseName: "AXIOM VAULT ${{ github.ref_name }}"
-          releaseBody: "Versión de Custodia PAU Estable. Soporte nativo Windows y Arquitectura Apple M4."
+          releaseBody: "Versión de Custodia PAU Estable. Soporte nativo Windows y Arquitectura nativa Apple M4."
           releaseDraft: true
           prerelease: false
+          # IMPORTANTE: Aquí es donde pasamos los argumentos de la matriz (el target M4)
+          args: ${{ matrix.args }} --verbose

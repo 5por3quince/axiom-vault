@@ -1,15 +1,13 @@
 {
-  "$schema": "../gen/schemas/desktop-schema.json",
+  "$schema": "../gen/schemas/desktop-capability.json",
   "identifier": "default",
-  "description": "Axiom Vault Core Permissions",
+  "description": "Permisos por defecto para AXIOM VAULT",
   "windows": ["main"],
   "permissions": [
     "core:default",
-    "shell:default",
+    "shell:allow-open",
+    "opener:default",
     "fs:default",
-    "fs:read-all",
-    "fs:write-all",
-    "dialog:default",
-    "opener:default"
+    "dialog:default"
   ]
 }
