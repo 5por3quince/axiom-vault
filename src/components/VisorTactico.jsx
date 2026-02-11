@@ -18,24 +18,28 @@ const VisorTactico = ({ selectedExp }) => {
       center: selectedExp ? [selectedExp.longitud, selectedExp.latitud] : [-4.4214, 36.7213],
       zoom: selectedExp ? 18 : 12,
       pitch: 60,
-      antialias: true
+      antialias: true,
+      fadeDuration: 0 // Mejora respuesta en M4
     });
 
     const map = mapRef.current;
     map.on('load', () => {
       map.setFog({ 'color': '#000000', 'horizon-blend': 0.1 });
-      setTimeout(() => map.resize(), 300); // Forzar re-renderizado
+      // Truco crítico para evitar pantalla blanca tras transición
+      setTimeout(() => map.resize(), 100);
+      setTimeout(() => map.resize(), 1000);
     });
 
     return () => map.remove();
   }, [selectedExp]);
 
   return (
-    <div className="w-full h-full p-8 bg-[#F5F5F7] dark:bg-black"> {/* Margen Apple Style */}
-      <div className="relative w-full h-full rounded-[3rem] overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.3)] border border-white/10">
+    <div className="w-full h-full p-10 bg-[#F5F5F7] dark:bg-black overflow-hidden">
+      <div className="relative w-full h-full rounded-[3rem] overflow-hidden shadow-2xl border border-white/10 bg-gray-900">
         <div ref={mapContainerRef} className="absolute inset-0 w-full h-full" />
-        <div className="absolute top-8 left-8 glass px-6 py-3 rounded-full border border-white/20 z-10">
-          <p className="text-[10px] font-black text-white uppercase tracking-widest">AXIOM M4-TACTICAL ENGINE</p>
+        <div className="absolute top-8 left-8 glass px-6 py-3 rounded-full border border-white/20 z-10 flex items-center gap-3">
+          <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+          <p className="text-[10px] font-black text-white uppercase tracking-[0.2em]">AXIOM M4-TACTICAL ENGINE</p>
         </div>
       </div>
     </div>
