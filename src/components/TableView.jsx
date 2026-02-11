@@ -1,108 +1,98 @@
-import React, { useState, useMemo } from 'react';
-import { Search, Shield, FileUp, ChevronRight, Hash } from 'lucide-react';
-import { ESTADOS } from '../config/schema';
-import * as XLSX from 'xlsx';
-import { open } from '@tauri-apps/plugin-dialog';
+// src/components/TableView.jsx
+import React from 'react';
+import { Upload, ChevronRight, Shield } from 'lucide-react';
 
-const TableView = ({ data = [], onSelectExp, onImportData }) => {
-  const [searchTerm, setSearchTerm] = useState("");
+const TableView = ({ data, onSelect, onViewMap, onImportExcel }) => {
+  const fileInputRef = React.useRef(null);
 
-  const handleImportListado = async () => {
-    try {
-      const selected = await open({
-        multiple: false,
-        filters: [{ name: 'Excel', extensions: ['xlsx', 'xls'] }]
-      });
-      
-      if (selected) {
-        // En Tauri, necesitamos leer el archivo como array buffer
-        const response = await fetch(selected);
-        const arrayBuffer = await response.arrayBuffer();
-        const workbook = XLSX.read(arrayBuffer);
-        const worksheet = workbook.Sheets[workbook.SheetNames[0]];
-        const jsonData = XLSX.utils.sheet_to_json(worksheet);
-        
-        // Protocolo de mapeo Axiom
-        const mappedData = jsonData.map(item => ({
-          n_expediente_cd: item["Nº EXPEDIENTE"] || "000",
-          establecimiento: item["ESTABLECIMIENTO"] || "SIN NOMBRE",
-          titular: item["TITULAR"] || "",
-          estado_actual: item["ESTADO"] || "A",
-          ref_catastral: item["REF. CATASTRAL"] || "",
-          tipo: item["TIPO"] || "Forestal",
-          anexo_iv: item["ANEXO IV"] === "SI"
-        }));
-
-        onImportData(mappedData);
-        alert(`MATRIZ ACTUALIZADA: ${mappedData.length} registros importados.`);
-      }
-    } catch (err) {
-      console.error("Error XLS:", err);
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file && onImportExcel) {
+      onImportExcel(file);
     }
   };
 
-  const filteredData = useMemo(() => {
-    return data.filter(item => 
-      item.establecimiento?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item.n_expediente_cd?.toString().includes(searchTerm) ||
-      item.ref_catastral?.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-  }, [searchTerm, data]);
-
   return (
-    <div className="h-full flex flex-col bg-white dark:bg-[#1c1c1e]">
-      <div className="p-6 border-b border-gray-100 flex items-center justify-between gap-4 bg-white/80 backdrop-blur-xl sticky top-0 z-20">
-        <div className="relative flex-1 max-w-xl">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
-          <input 
-            className="w-full pl-12 pr-4 py-3 bg-gray-100 border-none rounded-2xl focus:ring-2 focus:ring-blue-500 outline-none font-medium text-sm"
-            placeholder="Buscar por nombre, expediente o referencia catastral..." 
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
+    <div className="p-8 h-full flex flex-col">
+      <header className="mb-8 flex justify-between items-center">
+        <div>
+          <h1 className="text-3xl font-black tracking-tighter uppercase italic">Matriz de <span className="text-blue-600">Custodia</span></h1>
+          <p className="text-gray-400 text-xs font-bold uppercase tracking-widest mt-1 italic">Gestión de Planes de Autoprotección (PAU y PAIF)</p>
         </div>
+        
+        <input 
+          type="file" 
+          ref={fileInputRef} 
+          onChange={handleFileChange} 
+          accept=".xlsx, .xls" 
+          className="hidden" 
+        />
         <button 
-          onClick={handleImportListado}
-          className="flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-2xl font-bold shadow-lg shadow-blue-500/30 hover:bg-blue-700 transition-all active:scale-95"
+          onClick={() => fileInputRef.current.click()}
+          className="bg-blue-600 text-white px-8 py-4 rounded-2xl font-black text-xs uppercase tracking-widest flex items-center gap-3 hover:bg-blue-700 transition-all shadow-xl"
         >
-          <FileUp size={20} /> IMPORTAR LISTADO .XLS
+          <Upload size={18} /> Importar Listado .XLS
         </button>
-      </div>
+      </header>
 
-      <div className="flex-1 overflow-auto px-6">
-        <table className="w-full border-separate border-spacing-y-2 min-w-[1000px]">
-          <thead className="text-[10px] font-black text-gray-400 uppercase tracking-widest sticky top-0 bg-white/90 py-4 z-10">
-            <tr>
-              <th className="px-6 py-4 text-left">Expediente</th>
-              <th className="px-6 py-4 text-left">Establecimiento / Ref. Catastral</th>
-              <th className="px-6 py-4 text-left">Estado</th>
-              <th className="px-6 py-4 text-center">Anexo IV</th>
-              <th className="px-6 py-4 text-right">Acción</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredData.map((exp) => (
-              <tr key={exp.n_expediente_cd} onClick={() => onSelectExp(exp)} className="group bg-gray-50/50 hover:bg-white hover:shadow-xl transition-all cursor-pointer rounded-2xl">
-                <td className="px-6 py-5 rounded-l-2xl">
-                  <span className="text-xs font-black text-blue-600">#{exp.n_expediente_cd}</span>
-                  <p className="text-[9px] text-gray-400 font-bold uppercase">{exp.tipo}</p>
-                </td>
-                <td className="px-6 py-5">
-                  <div className="font-bold text-sm uppercase">{exp.establecimiento}</div>
-                  <div className="text-[10px] font-mono text-blue-500 mt-1">{exp.ref_catastral || "SIN REFERENCIA"}</div>
-                </td>
-                <td className="px-6 py-5">
-                  <span className="px-3 py-1 rounded-full text-[9px] font-black uppercase" style={{ backgroundColor: `${ESTADOS[exp.estado_actual]?.color}15`, color: ESTADOS[exp.estado_actual]?.color }}>
-                    {ESTADOS[exp.estado_actual]?.label}
-                  </span>
-                </td>
-                <td className="px-6 py-5 text-center">
-                  {exp.anexo_iv ? <div className="shield-active w-8 h-8 flex items-center justify-center mx-auto shadow-green-500/20"><Shield size={14}/></div> : <Shield size={14} className="text-gray-200 mx-auto" />}
-                </td>
-                <td className="px-6 py-5 rounded-r-2xl text-right"><ChevronRight className="inline text-gray-300 group-hover:text-blue-600 transition-all" /></td>
+      <div className="flex-1 glass rounded-[2.5rem] overflow-hidden border border-white/10">
+        <div className="overflow-auto h-full p-6">
+          <table className="w-full text-left">
+            <thead className="text-[10px] font-black text-gray-400 uppercase tracking-widest border-b border-gray-100 dark:border-white/5">
+              <tr>
+                <th className="pb-6">Expediente</th>
+                <th className="pb-6">Establecimiento / Ref. Catastral</th>
+                <th className="pb-6">Estado</th>
+                <th className="pb-6">Anexo IV</th>
+                <th className="pb-6 text-right">Acción</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody className="divide-y divide-gray-50 dark:divide-white/5">
+              {data.map((exp) => (
+                <tr 
+                  key={exp.id} 
+                  onClick={() => onSelect(exp)}
+                  className="hover:bg-gray-50 dark:hover:bg-white/5 transition-colors cursor-pointer group"
+                >
+                  <td className="py-6">
+                    <p className="text-blue-600 font-black">#</p>
+                    <p className="text-[10px] font-bold text-gray-400 uppercase">{exp.tipo}</p>
+                  </td>
+                  <td className="py-6">
+                    <p className="font-black text-sm uppercase">{exp.establecimiento}</p>
+                    <p className="text-[10px] font-bold text-blue-500 uppercase tracking-tighter">{exp.referencia_catastral}</p>
+                  </td>
+                  <td className="py-6">
+                    <span className={`px-3 py-1 rounded-full text-[9px] font-black uppercase ${
+                      exp.estado_actual === 'F' ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600'
+                    }`}>
+                      {exp.estado_actual === 'F' ? 'Favorable' : 'Pendiente'}
+                    </span>
+                  </td>
+                  <td className="py-6">
+                    <div className={`w-8 h-8 rounded-full flex items-center justify-center ${exp.anexo_iv === 'SI' ? 'bg-green-500 text-white shadow-lg' : 'bg-gray-100 text-gray-400'}`}>
+                      <Shield size={16} fill={exp.anexo_iv === 'SI' ? 'white' : 'transparent'} />
+                    </div>
+                  </td>
+                  <td className="py-6 text-right">
+                    <button 
+                      onClick={(e) => { e.stopPropagation(); onViewMap(exp); }}
+                      className="p-3 bg-gray-100 dark:bg-white/5 rounded-xl opacity-0 group-hover:opacity-100 transition-all hover:bg-blue-600 hover:text-white"
+                    >
+                      <ChevronRight size={18} />
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          {data.length === 0 && (
+            <div className="flex flex-col items-center justify-center h-full opacity-30">
+              <Upload size={64} className="mb-4" />
+              <p className="font-black uppercase tracking-widest text-sm text-center">Inyecte un listado Excel para comenzar la gestión operativa</p>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
