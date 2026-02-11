@@ -1,5 +1,5 @@
 // src/App.jsx
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { LayoutDashboard, List, Map, LogOut } from 'lucide-react';
 import * as XLSX from 'xlsx';
@@ -19,7 +19,6 @@ const App = () => {
   const [selectedExp, setSelectedExp] = useState(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
-  // Motor de Importación XLS con Mapeo dinámico
   const handleImportExcel = (file) => {
     if (!file) return;
     const reader = new FileReader();
@@ -30,12 +29,10 @@ const App = () => {
       const raw = XLSX.utils.sheet_to_json(ws);
 
       const formatted = raw.map((row, i) => {
-        // Buscamos columnas por nombre flexible
         const find = (keys) => {
           const k = Object.keys(row).find(key => keys.some(s => key.toLowerCase().includes(s.toLowerCase())));
           return k ? row[k] : null;
         };
-
         return {
           id: i + 1,
           establecimiento: find(['Establecimiento', 'Titular', 'Sujeto', 'Nombre']) || 'ESTABLECIMIENTO DESCONOCIDO',
@@ -44,10 +41,10 @@ const App = () => {
           estado_actual: find(['Estado'])?.toString().toUpperCase().startsWith('F') ? 'F' : 'A',
           tipo: find(['Uso', 'Tipo', 'Ámbito']) || 'General',
           latitud: parseFloat(find(['Latitud', 'LAT'])) || 36.7213,
-          longitud: parseFloat(find(['Longitud', 'LON', 'LNG'])) || -4.4214
+          longitud: parseFloat(find(['Longitud', 'LON', 'LNG'])) || -4.4214,
+          fecha: find(['Fecha', 'Alta']) || '2026-02-11'
         };
       });
-
       setData(formatted);
       setActiveTab('table');
     };
@@ -55,38 +52,59 @@ const App = () => {
   };
 
   const generateReport = () => {
-    if (data.length === 0) return alert("Cargue datos antes de generar el informe");
-    const doc = new jsPDF();
-    const month = new Date().toLocaleString('es-ES', { month: 'long' }).toUpperCase();
-    doc.setFontSize(20);
-    doc.text(`INFORME DE CUSTODIA PAU - ${month} 2026`, 15, 20);
-    doc.autoTable({
-      startY: 30,
-      head: [['Establecimiento', 'Referencia', 'Estado', 'Anexo IV']],
-      body: data.map(e => [e.establecimiento, e.referencia_catastral, e.estado_actual, e.anexo_iv]),
-      theme: 'grid',
-      headStyles: { fillColor: [37, 99, 235] }
-    });
-    doc.save(`Axiom_Balance_${month}.pdf`);
+    try {
+      if (data.length === 0) return alert("Cargue datos antes de generar el informe");
+      const doc = new jsPDF('l', 'mm', 'a4');
+      const month = new Date().toLocaleString('es-ES', { month: 'long' }).toUpperCase();
+      
+      doc.setFontSize(22);
+      doc.setTextColor(37, 99, 235);
+      doc.text(`AXIOM VAULT: BALANCE OPERATIVO - ${month} 2026`, 15, 20);
+      
+      doc.autoTable({
+        startY: 30,
+        head: [['ID', 'Establecimiento', 'Ref. Catastral', 'Estado', 'Anexo IV', 'Tipo']],
+        body: data.slice(0, 100).map(e => [e.id, e.establecimiento, e.referencia_catastral, e.estado_actual === 'F' ? 'FAVORABLE' : 'PENDIENTE', e.anexo_iv, e.tipo]),
+        theme: 'striped',
+        headStyles: { fillColor: [37, 99, 235], fontSize: 10 },
+        styles: { fontSize: 8 }
+      });
+      
+      doc.save(`Axiom_Balance_${month}_2026.pdf`);
+    } catch (err) {
+      console.error("Error generando PDF:", err);
+      alert("Error al generar el reporte. Verifique la consola.");
+    }
+  };
+
+  const handleOpenDetail = (exp) => {
+    setSelectedExp(exp);
+    setIsSidebarOpen(true); // Abrir solo sidebar, no cambiar de pestaña
+  };
+
+  const handleGoToMap = (exp) => {
+    setSelectedExp(exp);
+    setActiveTab('map'); // Aquí sí cambiamos al visor
+    setIsSidebarOpen(false);
   };
 
   if (!user) return <Login onLogin={setUser} />;
 
   return (
-    <div className="h-screen w-screen bg-[#F5F5F7] dark:bg-black text-black dark:text-white flex overflow-hidden font-sans selection:bg-blue-100">
+    <div className="h-screen w-screen bg-[#F5F5F7] dark:bg-black text-black dark:text-white flex overflow-hidden font-sans">
       <nav className="w-24 bg-white/80 dark:bg-[#1C1C1E]/80 backdrop-blur-xl border-r border-gray-200 dark:border-white/5 flex flex-col items-center py-10 gap-12 z-30 shadow-2xl">
-        <img src={logoAxiom} alt="Axiom" className="w-14 h-14 object-contain shadow-sm mb-4" />
+        <img src={logoAxiom} alt="Axiom" className="w-14 h-14 object-contain mb-4" />
         
         <NavIcon active={activeTab === 'dashboard'} onClick={() => setActiveTab('dashboard')} icon={<LayoutDashboard size={26} />} label="Mando" />
         <NavIcon active={activeTab === 'table'} onClick={() => setActiveTab('table')} icon={<List size={26} />} label="Matriz" />
         <NavIcon active={activeTab === 'map'} onClick={() => setActiveTab('map')} icon={<Map size={26} />} label="Táctico" />
 
-        <button onClick={() => setUser(null)} className="mt-auto p-4 rounded-full hover:bg-red-50 hover:text-red-500 transition-all text-gray-400">
+        <button onClick={() => setUser(null)} className="mt-auto p-4 rounded-full hover:bg-red-500/10 hover:text-red-500 transition-all text-gray-400">
           <LogOut size={24} />
         </button>
       </nav>
 
-      <main className="flex-1 relative overflow-hidden bg-gray-50/50 dark:bg-black">
+      <main className="flex-1 relative overflow-hidden bg-white dark:bg-black">
         <AnimatePresence mode="wait">
           {activeTab === 'dashboard' && (
             <motion.div key="db" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="h-full">
@@ -98,8 +116,9 @@ const App = () => {
               <TableView 
                 data={data} 
                 onImportExcel={handleImportExcel} 
-                onSelect={(exp) => { setSelectedExp(exp); setIsSidebarOpen(true); }} 
-                onViewMap={(exp) => { setSelectedExp(exp); setActiveTab('map'); }} 
+                onSelect={handleOpenDetail} 
+                onViewMap={handleGoToMap} 
+                selectedId={selectedExp?.id}
               />
             </motion.div>
           )}
