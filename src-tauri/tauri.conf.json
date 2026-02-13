@@ -1,6 +1,6 @@
 {
   "productName": "AXIOM-VAULT",
-  "version": "1.8.0",
+  "version": "1.8.1",
   "identifier": "com.axiom.vault.system",
   "build": {
     "beforeDevCommand": "npm run dev",
@@ -19,7 +19,7 @@
       }
     ],
     "security": {
-      "csp": "default-src 'self'; img-src 'self' https://*.mapbox.com data: blob:; script-src 'self' 'unsafe-eval' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://*.mapbox.com; connect-src 'self' https://*.mapbox.com https://api.mapbox.com https://events.mapbox.com;"
+      "csp": "default-src 'self'; img-src 'self' https://*.google.com https://*.googleapis.com https://*.gstatic.com data: blob:; script-src 'self' 'unsafe-eval' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; connect-src 'self' https://*.google.com https://*.googleapis.com; frame-src https://*.google.com https://*.google.es;"
     }
   },
   "bundle": {
