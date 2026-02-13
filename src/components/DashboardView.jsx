@@ -1,4 +1,3 @@
-// src/components/DashboardView.jsx
 import React, { useMemo } from 'react';
 import { ShieldCheck, FileText, Activity, BarChart3, FileSpreadsheet } from 'lucide-react';
 
@@ -7,80 +6,92 @@ const DashboardView = ({ data = [], onSwitchTab, onGenerateReport }) => {
     total: data.length,
     anexoIV: data.filter(e => e.anexo_iv === 'SI').length,
     pendientes: data.filter(e => e.estado_actual === 'A').length,
-    favorables: data.filter(e => e.estado_actual === 'F').length
+    favorables: data.filter(e => e.estado_actual === 'F').length,
+    forestal: data.filter(e => e.tipo?.includes('Forestal')).length,
+    municipal: data.filter(e => e.tipo?.includes('Municipal')).length
   }), [data]);
 
   return (
-    <div className="p-10 h-full overflow-y-auto bg-[#F5F5F7] dark:bg-black">
-      <header className="mb-12 flex justify-between items-end">
+    <div style={{ padding: '60px', height: '100%', overflowY: 'auto', backgroundColor: '#F5F5F7', boxSizing: 'border-box' }}>
+      <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '60px' }}>
         <div>
-          {/* LOGO ELIMINADO DE AQUÍ SEGÚN HOJA DE RUTA */}
-          <h1 className="text-4xl font-black tracking-tighter not-italic text-black dark:text-white uppercase">
-            AXIOM <span className="text-blue-600">VAULT</span>
+          <h1 style={{ fontSize: '42px', fontWeight: '900', letterSpacing: '-0.05em', margin: 0, color: '#1c1c1e' }}>
+            AXIOM <span style={{ color: '#2563eb' }}>VAULT</span>
           </h1>
-          <p className="text-gray-500 font-bold uppercase text-[10px] tracking-widest mt-1 italic">
-            GESTIÓN DE PLANES DE AUTOPROTECCIÓN • FEBRERO 2026
+          <p style={{ color: '#8e8e93', fontSize: '12px', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '0.15em', marginTop: '8px' }}>
+            Gestión de Planes de Autoprotección • Febrero 2026
           </p>
         </div>
         
-        <div className="flex gap-4">
-          <button 
-            onClick={onGenerateReport}
-            className="bg-emerald-600 text-white px-8 py-4 rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl flex items-center gap-3 hover:bg-emerald-700 transition-all active:scale-95"
-          >
-            <FileSpreadsheet size={18} /> Crear Informe de Balance
+        <div style={{ display: 'flex', gap: '16px' }}>
+          <button onClick={onGenerateReport} style={{ backgroundColor: '#059669', color: 'white', padding: '18px 28px', borderRadius: '20px', border: 'none', fontWeight: '900', fontSize: '11px', textTransform: 'uppercase', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '10px', boxShadow: '0 12px 25px rgba(5, 150, 105, 0.25)', transition: 'all 0.3s' }}>
+            <FileSpreadsheet size={20} /> Crear Informe de Balance
           </button>
-          <button 
-            onClick={() => onSwitchTab('table')} 
-            className="bg-blue-600 text-white px-8 py-4 rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl flex items-center gap-3 hover:bg-blue-700 transition-all active:scale-95"
-          >
-            <FileText size={18} /> Matriz Completa
+          <button onClick={() => onSwitchTab('table')} style={{ backgroundColor: '#2563eb', color: 'white', padding: '18px 28px', borderRadius: '20px', border: 'none', fontWeight: '900', fontSize: '11px', textTransform: 'uppercase', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '10px', boxShadow: '0 12px 25px rgba(37, 99, 235, 0.25)' }}>
+            <FileText size={20} /> Matriz Completa
           </button>
         </div>
       </header>
 
-      {/* Grid de Métricas Bento Box */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-10">
-        <StatCard title="Total Vault" value={metrics.total} icon={<FileText className="text-blue-500"/>} />
-        <StatCard title="Anexo IV Activos" value={metrics.anexoIV} icon={<ShieldCheck className="text-white"/>} specialColor="bg-green-500" highlight />
-        <StatCard title="Prioridad A" value={metrics.pendientes} icon={<Activity className="text-red-500"/>} />
-        <StatCard title="Validados" value={metrics.favorables} icon={<ShieldCheck className="text-emerald-500"/>} />
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '30px', marginBottom: '40px' }}>
+        <StatCard title="Total Vault" value={metrics.total} color="#2563eb" icon={<FileText size={20}/>} />
+        <StatCard title="Anexo IV Activos" value={metrics.anexoIV} color="#059669" highlight icon={<ShieldCheck size={20}/>} />
+        <StatCard title="Prioridad A" value={metrics.pendientes} color="#ef4444" icon={<Activity size={20}/>} />
+        <StatCard title="Validados" value={metrics.favorables} color="#10b981" icon={<ShieldCheck size={20}/>} />
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <div className="lg:col-span-3 bg-white dark:bg-[#1C1C1E] p-10 rounded-[3rem] border border-gray-100 dark:border-white/5 shadow-sm">
-           <div className="flex justify-between items-center mb-10">
-             <h3 className="text-lg font-black text-blue-600 uppercase tracking-widest flex items-center gap-3"><BarChart3 size={22}/> BALANCE ADMINISTRATIVO (LÍNEA ROJA)</h3>
-             <span className="bg-blue-50 text-blue-600 px-4 py-1 rounded-full text-[10px] font-black uppercase">Sincronizado M4</span>
-           </div>
-           
-           <table className="w-full text-left font-bold">
-              <thead className="text-[10px] text-gray-400 uppercase tracking-widest border-b border-gray-100 dark:border-white/5">
-                <tr><th className="pb-6">Ámbito de Aplicación</th><th className="pb-6 text-center">Obligados R.D. 393/2007</th><th className="pb-6 text-center">No Obligados</th><th className="pb-6 text-right">Total</th></tr>
-              </thead>
-              <tbody className="divide-y divide-gray-50 dark:divide-white/5">
-                <tr className="text-sm"><td className="py-8 text-gray-800 dark:text-gray-200">Sector Forestal (PLEIF)</td><td className="py-8 text-center text-blue-600 font-black">1</td><td className="py-8 text-center text-gray-300">1075</td><td className="py-8 text-right font-black text-black dark:text-white">{data.filter(e => e.tipo === 'Forestal').length}</td></tr>
-                <tr className="text-sm"><td className="py-8 text-gray-800 dark:text-gray-200">Instalaciones Municipales</td><td className="py-8 text-center text-blue-600 font-black">1</td><td className="py-8 text-center text-gray-300">1075</td><td className="py-8 text-right font-black text-black dark:text-white">{data.filter(e => e.tipo === 'Municipal').length}</td></tr>
-                <tr className="text-2xl font-black"><td className="pt-10 uppercase italic">RESUMEN VAULT</td><td className="pt-10 text-center text-blue-600">2</td><td className="pt-10 text-center text-gray-300">2150</td><td className="pt-10 text-right text-black dark:text-white">{metrics.total}</td></tr>
-              </tbody>
-           </table>
-           <div className="mt-10 pt-6 border-t border-dashed border-gray-200 dark:border-white/10 text-center">
-              <p className="text-[9px] font-black text-gray-400 uppercase tracking-[0.3em]">www.axiomdata.eu • Axiom Core • M4 Verified</p>
-           </div>
+      <div style={{ backgroundColor: '#fff', padding: '45px', borderRadius: '45px', border: '1px solid rgba(0,0,0,0.05)', boxShadow: '0 10px 40px rgba(0,0,0,0.02)' }}>
+        <h3 style={{ fontSize: '14px', fontWeight: '900', color: '#2563eb', textTransform: 'uppercase', letterSpacing: '0.15em', marginBottom: '35px', display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <BarChart3 size={20}/> Balance Administrativo Operativo
+        </h3>
+        <table style={{ width: '100%', textAlign: 'left', borderCollapse: 'collapse' }}>
+          <thead>
+            <tr style={{ fontSize: '10px', color: '#8e8e93', borderBottom: '2px solid #f8f8fa', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
+              <th style={{ padding: '20px 0' }}>Ámbito de Aplicación</th>
+              <th style={{ textAlign: 'center' }}>Obligados 393/2007</th>
+              <th style={{ textAlign: 'center' }}>No Obligados</th>
+              <th style={{ textAlign: 'right' }}>Total Carga</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr style={{ borderBottom: '1px solid #f8f8fa' }}>
+              <td style={{ padding: '30px 0', fontWeight: '900', fontSize: '14px', color: '#1c1c1e' }}>Sector Forestal (PLEIF)</td>
+              <td style={{ textAlign: 'center', color: '#2563eb', fontWeight: '900', fontSize: '16px' }}>1</td>
+              <td style={{ textAlign: 'center', color: '#c7c7cc', fontWeight: 'bold' }}>1075</td>
+              <td style={{ textAlign: 'right', fontWeight: '900', fontSize: '16px' }}>{metrics.forestal}</td>
+            </tr>
+            <tr style={{ borderBottom: '1px solid #f8f8fa' }}>
+              <td style={{ padding: '30px 0', fontWeight: '900', fontSize: '14px', color: '#1c1c1e' }}>Instalaciones Municipales</td>
+              <td style={{ textAlign: 'center', color: '#2563eb', fontWeight: '900', fontSize: '16px' }}>1</td>
+              <td style={{ textAlign: 'center', color: '#c7c7cc', fontWeight: 'bold' }}>1075</td>
+              <td style={{ textAlign: 'right', fontWeight: '900', fontSize: '16px' }}>{metrics.municipal}</td>
+            </tr>
+            <tr>
+              <td style={{ padding: '40px 0 0 0', fontWeight: '900', fontSize: '20px', color: '#1c1c1e', textTransform: 'uppercase', fontStyle: 'italic' }}>Resumen Vault</td>
+              <td style={{ padding: '40px 0 0 0', textAlign: 'center', color: '#2563eb', fontWeight: '900', fontSize: '24px' }}>2</td>
+              <td style={{ padding: '40px 0 0 0', textAlign: 'center', color: '#c7c7cc', fontWeight: '900', fontSize: '24px' }}>2150</td>
+              <td style={{ padding: '40px 0 0 0', textAlign: 'right', fontWeight: '900', fontSize: '24px', color: '#1c1c1e' }}>{metrics.total}</td>
+            </tr>
+          </tbody>
+        </table>
+        <div style={{ marginTop: '50px', paddingTop: '30px', borderTop: '1px dashed #e5e7eb', textAlign: 'center' }}>
+          <p style={{ color: '#c7c7cc', fontSize: '10px', fontWeight: '900', textTransform: 'uppercase', letterSpacing: '0.3em' }}>
+            www.axiomdata.eu • Protocolo M4 Verified
+          </p>
         </div>
       </div>
     </div>
   );
 };
 
-const StatCard = ({ title, value, icon, highlight, specialColor }) => (
-  <div className="bg-white dark:bg-[#1C1C1E] p-8 rounded-[2.5rem] shadow-sm border border-gray-100 dark:border-white/5 relative overflow-hidden transition-transform hover:scale-[1.02]">
-    <div className="flex justify-between items-start mb-6">
-      <div className={`p-4 ${specialColor || 'bg-gray-50 dark:bg-white/5'} rounded-2xl shadow-inner`}>{icon}</div>
-      {highlight && <div className="bg-green-500 text-white px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-tighter animate-pulse">● Protegido</div>}
+const StatCard = ({ title, value, color, highlight, icon }) => (
+  <div style={{ backgroundColor: '#fff', padding: '35px', borderRadius: '35px', border: '1px solid rgba(0,0,0,0.04)', position: 'relative', boxShadow: '0 10px 30px rgba(0,0,0,0.02)', transition: 'transform 0.3s ease' }}>
+    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '20px' }}>
+      <div style={{ padding: '12px', borderRadius: '15px', backgroundColor: '#f8f9fa', color: color }}>{icon}</div>
+      {highlight && <div style={{ backgroundColor: '#10b981', color: '#fff', padding: '5px 12px', borderRadius: '10px', fontSize: '8px', fontWeight: '900', letterSpacing: '0.1em' }}>● PROTEGIDO</div>}
     </div>
-    <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">{title}</p>
-    <p className="text-4xl font-black tracking-tighter text-black dark:text-white">{value.toLocaleString()}</p>
+    <p style={{ color: '#8e8e93', fontSize: '10px', fontWeight: '900', textTransform: 'uppercase', letterSpacing: '0.12em', marginBottom: '5px' }}>{title}</p>
+    <p style={{ fontSize: '48px', fontWeight: '900', margin: 0, color: '#1c1c1e', letterSpacing: '-0.03em' }}>{value.toLocaleString()}</p>
   </div>
 );
 

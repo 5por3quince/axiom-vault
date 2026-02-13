@@ -1,11 +1,17 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 import App from "./App";
-import "./styles/apple-theme.css";
-import "./App.css"; // Inyectamos las correcciones estructurales
+import "./App.css";
 
-ReactDOM.createRoot(document.getElementById("root")).render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>
-);
+console.log("--- AXIOM CORE: INICIALIZANDO RENDERIZADO ---");
+
+const rootElement = document.getElementById("root");
+if (!rootElement) {
+  console.error("ERROR CRÍTICO: No se encontró el elemento #root");
+} else {
+  ReactDOM.createRoot(rootElement).render(
+    <React.StrictMode>
+      <App />
+    </React.StrictMode>
+  );
+}

@@ -1,115 +1,93 @@
 // src/components/TableView.jsx
-import React, { useState, useMemo, useRef } from 'react';
-import { Upload, ChevronRight, Shield, Search, Database } from 'lucide-react';
+import React, { useMemo, useRef, useEffect } from 'react';
+import { motion } from 'framer-motion';
+import { Upload, Shield, Search, Map as AxiomMapIcon, Database } from 'lucide-react';
 
-const TableView = ({ data = [], onSelect, onViewMap, onImportExcel, selectedId }) => {
-  const [searchTerm, setSearchTerm] = useState('');
-  const [filterStatus, setFilterStatus] = useState('ALL');
+const TableView = ({ data = [], onImportExcel, onSelect, onViewMap, selectedId, scrollRef, searchTerm, setSearchTerm, statusFilter, setStatusFilter }) => {
   const fileInputRef = useRef(null);
+  const scrollContainerRef = useRef(null);
 
-  const filteredData = useMemo(() => {
-    return data.filter(exp => {
-      const textMatch = exp.establecimiento.toLowerCase().includes(searchTerm.toLowerCase()) || 
-                        exp.referencia_catastral.toLowerCase().includes(searchTerm.toLowerCase());
-      const statusMatch = filterStatus === 'ALL' || exp.estado_actual === filterStatus;
-      return textMatch && statusMatch;
+  useEffect(() => {
+    if (scrollContainerRef.current) {
+      scrollContainerRef.current.scrollTop = scrollRef.current;
+    }
+  }, []);
+
+  const handleScrollPersistence = (e) => {
+    scrollRef.current = e.target.scrollTop;
+  };
+
+  const filtered = useMemo(() => {
+    return data.filter(e => {
+      const establishment = (e.establecimiento || '').toLowerCase();
+      const ref = (e.referencia_principal || '').toLowerCase();
+      return (establishment.includes(searchTerm.toLowerCase()) || ref.includes(searchTerm.toLowerCase())) &&
+             (statusFilter === 'ALL' || e.estado_actual === statusFilter);
     });
-  }, [data, searchTerm, filterStatus]);
+  }, [data, searchTerm, statusFilter]);
 
   return (
-    <div className="p-8 h-full flex flex-col bg-[#F5F5F7] dark:bg-black">
-      <header className="mb-8 flex justify-between items-center">
-        <div>
-          <h1 className="text-3xl font-black tracking-tighter uppercase text-black dark:text-white">MATRIZ DE <span className="text-blue-600">CUSTODIA</span></h1>
-          <p className="text-gray-400 text-xs font-bold uppercase tracking-widest mt-1 italic">Gestión de Expedientes Técnicos</p>
-        </div>
-        <button 
-          onClick={() => fileInputRef.current.click()}
-          className="bg-blue-600 text-white px-8 py-4 rounded-2xl font-black text-xs uppercase tracking-widest flex items-center gap-3 hover:bg-blue-700 shadow-xl transition-all active:scale-95"
-        >
+    <div style={{ padding: '40px', height: '100%', display: 'flex', flexDirection: 'column', backgroundColor: '#F5F5F7', overflow: 'hidden' }}>
+      <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px' }}>
+        <h1 style={{ fontSize: '32px', fontWeight: '900', margin: 0, textTransform: 'uppercase' }}>MATRIZ DE <span style={{ color: '#2563eb' }}>EXPEDIENTES</span></h1>
+        <button onClick={() => fileInputRef.current.click()} style={{ backgroundColor: '#2563eb', color: '#fff', padding: '16px 28px', borderRadius: '18px', border: 'none', fontWeight: '900', fontSize: '11px', textTransform: 'uppercase', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '10px' }}>
           <Upload size={18} /> Importar Listado .XLS
-          <input type="file" ref={fileInputRef} onChange={(e) => onImportExcel(e.target.files[0])} className="hidden" accept=".xlsx, .xls" />
+          <input type="file" ref={fileInputRef} style={{ display: 'none' }} accept=".xls,.xlsx" onChange={(e) => onImportExcel(e.target.files[0])} />
         </button>
       </header>
 
-      <div className="flex gap-4 mb-6">
-        <div className="flex-1 relative">
-          <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
-          <input 
-            type="text" 
-            placeholder="Filtrar por nombre o referencia catastral..." 
-            className="w-full h-14 pl-14 pr-6 bg-white dark:bg-[#1C1C1E] rounded-2xl border-none outline-none font-bold text-sm shadow-sm"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
+      <div style={{ display: 'flex', gap: '15px', marginBottom: '25px' }}>
+        <div style={{ flex: 1, position: 'relative' }}>
+          <Search style={{ position: 'absolute', left: '22px', top: '50%', transform: 'translateY(-50%)', color: '#8e8e93' }} size={20} />
+          <input type="text" placeholder="Filtrar expedientes..." style={{ width: '100%', padding: '20px 20px 20px 65px', borderRadius: '22px', border: 'none', backgroundColor: '#fff', fontSize: '14px', fontWeight: 'bold', outline: 'none', boxShadow: '0 2px 10px rgba(0,0,0,0.02)' }} value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
         </div>
-        <select 
-          className="h-14 px-6 bg-white dark:bg-[#1C1C1E] rounded-2xl font-black text-[10px] uppercase outline-none border-none shadow-sm cursor-pointer text-blue-600"
-          value={filterStatus}
-          onChange={(e) => setFilterStatus(e.target.value)}
-        >
-          <option value="ALL">TODOS LOS ESTADOS</option>
+        <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} style={{ padding: '0 30px', borderRadius: '22px', border: 'none', backgroundColor: '#fff', fontWeight: '900', fontSize: '10px', textTransform: 'uppercase', cursor: 'pointer', color: '#2563eb' }}>
+          <option value="ALL">TODOS</option>
           <option value="F">FAVORABLES</option>
           <option value="A">PENDIENTES</option>
         </select>
       </div>
 
-      <div className="flex-1 bg-white dark:bg-[#1C1C1E] rounded-[3rem] overflow-hidden border border-gray-100 dark:border-white/5 shadow-inner">
-        <div className="overflow-auto h-full p-6">
-          <table className="w-full text-left">
-            <thead className="text-[9px] font-black text-gray-400 uppercase tracking-widest border-b border-gray-50 dark:border-white/5">
-              <tr>
-                <th className="pb-6 pl-4">ID</th>
-                <th className="pb-6">ESTABLECIMIENTO / REFERENCIA</th>
-                <th className="pb-6 text-center">ESTADO</th>
-                <th className="pb-6 text-center">ANEXO IV</th>
-                <th className="pb-6 text-right pr-4">ACCIÓN</th>
+      <div style={{ flex: 1, backgroundColor: '#fff', borderRadius: '35px', border: '1px solid rgba(0,0,0,0.06)', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
+        <div ref={scrollContainerRef} onScroll={handleScrollPersistence} style={{ overflowY: 'auto', flex: 1, padding: '25px' }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse', tableLayout: 'fixed' }}>
+            <thead style={{ position: 'sticky', top: 0, backgroundColor: '#fff', zIndex: 10 }}>
+              <tr style={{ textAlign: 'left', borderBottom: '2px solid #f4f4f7' }}>
+                <th style={{ padding: '18px', fontSize: '10px', color: '#8e8e93', textTransform: 'uppercase', width: '80px' }}>ID</th>
+                <th style={{ padding: '18px', fontSize: '10px', color: '#8e8e93', textTransform: 'uppercase' }}>Establecimiento</th>
+                <th style={{ padding: '18px', fontSize: '10px', color: '#8e8e93', textTransform: 'uppercase', textAlign: 'center', width: '140px' }}>Estado</th>
+                <th style={{ padding: '18px', fontSize: '10px', color: '#8e8e93', textTransform: 'uppercase', textAlign: 'center', width: '110px' }}>Anexo IV</th>
+                <th style={{ padding: '18px', fontSize: '10px', color: '#8e8e93', textTransform: 'uppercase', textAlign: 'right', width: '85px' }}>Mapa</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-50 dark:divide-white/5">
-              {filteredData.map((exp) => (
-                <tr 
-                  key={exp.id} 
-                  onClick={() => onSelect(exp)}
-                  className={`transition-all cursor-pointer group ${
-                    selectedId === exp.id ? 'bg-blue-50/50 dark:bg-blue-500/10' : 'hover:bg-gray-50 dark:hover:bg-white/5'
-                  }`}
-                >
-                  <td className="py-6 pl-4 font-black text-blue-600 text-sm">#{exp.id.toString().padStart(3, '0')}</td>
-                  <td className="py-6">
-                    <p className="font-black text-sm uppercase text-gray-800 dark:text-white">{exp.establecimiento}</p>
-                    <p className="text-[10px] font-bold text-blue-500/70 uppercase tracking-tighter">{exp.referencia_catastral}</p>
+            <tbody>
+              {filtered.map(e => (
+                <tr key={e.id} onClick={() => onSelect(e)} style={{ borderBottom: '1px solid #f4f4f7', cursor: 'pointer', transition: 'all 0.2s', backgroundColor: selectedId === e.id ? '#f0f7ff' : 'transparent' }}>
+                  <td style={{ padding: '22px 18px', fontWeight: '900', color: '#2563eb', fontSize: '13px' }}>#{e.id.toString().padStart(3, '0')}</td>
+                  <td style={{ padding: '22px 18px', overflow: 'hidden' }}>
+                    <div style={{ fontWeight: '900', fontSize: '14px', textTransform: 'uppercase', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{e.establecimiento}</div>
+                    <div style={{ fontSize: '10px', color: '#8e8e93', fontWeight: 'bold' }}>{e.referencia_principal}</div>
                   </td>
-                  <td className="py-6 text-center">
-                    <span className={`px-4 py-1.5 rounded-lg text-[9px] font-black uppercase ${
-                      exp.estado_actual === 'F' ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600'
-                    }`}>
-                      {exp.estado_actual === 'F' ? 'Favorable' : 'Pendiente'}
-                    </span>
+                  <td style={{ padding: '18px', textAlign: 'center' }}>
+                    <span style={{ padding: '6px 14px', borderRadius: '10px', fontSize: '9px', fontWeight: '900', backgroundColor: e.estado_actual === 'F' ? '#dcfce7' : '#fee2e2', color: e.estado_actual === 'F' ? '#166534' : '#991b1b' }}>{e.estado_actual === 'F' ? 'FAVORABLE' : 'PENDIENTE'}</span>
                   </td>
-                  <td className="py-6 flex justify-center">
-                    <div className={`w-8 h-8 rounded-xl flex items-center justify-center ${exp.anexo_iv === 'SI' ? 'bg-green-500 text-white shadow-md' : 'bg-gray-100 text-gray-300'}`}>
-                      <Shield size={14} fill={exp.anexo_iv === 'SI' ? 'white' : 'transparent'} />
+                  <td style={{ padding: '18px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'center' }}>
+                      <motion.div animate={e.anexo_iv === 'SI' ? { scale: [1, 1.1, 1] } : {}} transition={{ repeat: Infinity, duration: 2 }} style={{ width: '38px', height: '38px', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: e.anexo_iv === 'SI' ? '#10b981' : '#f8f8fa' }}>
+                        <Shield size={18} color={e.anexo_iv === 'SI' ? '#fff' : '#d1d1d6'} fill={e.anexo_iv === 'SI' ? '#fff' : 'transparent'} />
+                      </motion.div>
                     </div>
                   </td>
-                  <td className="py-6 text-right pr-4">
-                    <button 
-                      onClick={(e) => { e.stopPropagation(); onViewMap(exp); }}
-                      className="p-3 bg-gray-50 dark:bg-white/5 rounded-xl opacity-0 group-hover:opacity-100 transition-all hover:bg-blue-600 hover:text-white"
-                    >
-                      <Map size={18} />
+                  <td style={{ padding: '18px', textAlign: 'right' }}>
+                    <button onClick={(event) => { event.stopPropagation(); onViewMap(e); }} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#c7c7cc', padding: '10px' }}>
+                      <AxiomMapIcon size={20} />
                     </button>
                   </td>
                 </tr>
               ))}
             </tbody>
           </table>
-          {data.length === 0 && (
-            <div className="flex flex-col items-center justify-center py-20 opacity-20">
-              <Database size={48} className="mb-4" />
-              <p className="font-black uppercase tracking-widest text-[10px]">Esperando importación de datos...</p>
-            </div>
-          )}
+          {data.length === 0 && <div style={{ padding: '100px 0', textAlign: 'center', opacity: 0.2 }}><Database size={48} /><p>Sin datos</p></div>}
         </div>
       </div>
     </div>
