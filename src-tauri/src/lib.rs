@@ -1,6 +1,6 @@
 // src-tauri/src/lib.rs
 use std::fs;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 use std::process::Command;
 
 #[tauri::command]
@@ -9,7 +9,7 @@ fn save_database(base_path: String, data_json: String) -> Result<String, String>
     let mut path = PathBuf::from(&base_path);
     path.push("vault_master.json");
     fs::write(path, data_json).map_err(|e| e.to_string())?;
-    Ok("Base de datos sincronizada".into())
+    Ok("Sincronización completada".into())
 }
 
 #[tauri::command]
@@ -23,25 +23,37 @@ fn load_database(base_path: String) -> Result<String, String> {
 
 #[tauri::command]
 fn create_expediente_folders(base_path: String, numero_expediente: String, nombre_expediente: String) -> Result<String, String> {
-    let mut path = PathBuf::from(base_path);
+    if base_path.is_empty() { return Err("Ruta base vacía".into()); }
+    
+    let mut path = PathBuf::from(&base_path);
+    // Prefijo obligatorio: [Nº EXP] - [NOMBRE]
     let folder_name = format!("{} - {}", numero_expediente, nombre_expediente);
     let clean_name: String = folder_name.chars()
         .map(|c| if "/\\?%*:|\"<>".contains(c) { '-' } else { c })
         .collect();
+    
     path.push(clean_name);
+
     let tecnico = path.join("TECNICO");
     let administrativo = path.join("ADMINISTRATIVO");
+
+    // Forzamos creación recursiva
     fs::create_dir_all(&tecnico).map_err(|e| e.to_string())?;
     fs::create_dir_all(&administrativo).map_err(|e| e.to_string())?;
-    Ok("Directorios creados".into())
+
+    Ok(format!("Directorios creados en: {:?}", path))
 }
 
 #[tauri::command]
 fn open_vault_folder(folder_path: String) -> Result<(), String> {
+    let path = Path::new(&folder_path);
+    if !path.exists() { return Err("La carpeta todavía no existe en el servidor".into()); }
+
     #[cfg(target_os = "windows")]
     { Command::new("explorer").arg(folder_path).spawn().map_err(|e| e.to_string())?; }
     #[cfg(target_os = "macos")]
     { Command::new("open").arg(folder_path).spawn().map_err(|e| e.to_string())?; }
+    
     Ok(())
 }
 
@@ -59,5 +71,5 @@ pub fn run() {
             open_vault_folder
         ])
         .run(tauri::generate_context!())
-        .expect("Error running application");
+        .expect("error running application");
 }
