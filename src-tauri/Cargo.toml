@@ -1,6 +1,6 @@
 [package]
 name = "axiom-vault"
-version = "2.1.0"
+version = "2.1.1"
 description = "AXIOM VAULT - Estación de Mando de Gestión PAU"
 authors = ["AXIOM Engineering"]
 edition = "2021"
