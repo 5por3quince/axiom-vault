@@ -1,7 +1,7 @@
 {
   "$schema": "../gen/schemas/desktop-capability.json",
   "identifier": "default",
-  "description": "Permisos core para AXIOM VAULT con soporte de Mapas",
+  "description": "Permisos core con gestión de archivos",
   "windows": [
     "main"
   ],

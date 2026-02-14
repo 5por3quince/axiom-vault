@@ -1,6 +1,6 @@
 {
   "productName": "AXIOM-VAULT",
-  "version": "1.8.1",
+  "version": "2.1.0",
   "identifier": "com.axiom.vault.system",
   "build": {
     "beforeDevCommand": "npm run dev",
